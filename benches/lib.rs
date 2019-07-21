@@ -6,7 +6,7 @@ use benchpi::*;
 use num_cpus;
 use test::Bencher;
 
-const ITER_NUM: u32 = 10000;
+const ITER_NUM: u32 = 1000;
 
 #[bench]
 fn bench_single_thread(bench: &mut Bencher) {

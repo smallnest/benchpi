@@ -2,16 +2,19 @@ use itertools::Itertools;
 use rayon::prelude::*;
 use std::thread::spawn;
 
+// https://en.wikipedia.org/wiki/Bailey–Borwein–Plouffe_formula
+fn bbp(k: u32) -> f64 {
+    let a1 = 4.0 / (8 * k + 1) as f64;
+    let a2 = 2.0 / (8 * k + 4) as f64;
+    let a3 = 1.0 / (8 * k + 5) as f64;
+    let a4 = 1.0 / (8 * k + 6) as f64;
+
+    (a1 - a2 - a3 - a4) / ((16 as f64).powi(k as i32))
+}
 pub fn pi(n: u32) -> f64 {
     let mut result: f64 = 0.0;
     for i in 0..n {
-        let k = (2 * i + 1) as f64;
-        let sub_result = 4.0 / k;
-        result = if i % 2 == 0 {
-            result + sub_result
-        } else {
-            result - sub_result
-        };
+        result += bbp(i);
     }
     result
 }
@@ -27,13 +30,7 @@ pub fn pi_with_thread(n: u32, num: usize) -> f64 {
         thread_handlers.push(spawn(move || {
             let mut result_in_child: f64 = 0.0;
             for i in worklist {
-                let k = (2 * i + 1) as f64;
-                let sub_result = 4.0 / k;
-                result_in_child = if i % 2 == 0 {
-                    result_in_child + sub_result
-                } else {
-                    result_in_child - sub_result
-                };
+                result_in_child += bbp(i);
             }
             result_in_child
         }));
@@ -47,24 +44,13 @@ pub fn pi_with_thread(n: u32, num: usize) -> f64 {
 }
 
 pub fn pi_with_rayon(n: u32) -> f64 {
-    (0..n)
-        .collect::<Vec<_>>()
-        .par_iter()
-        .map(|&i| {
-            let k = (2 * i + 1) as f64;
-            if i % 2 == 0 {
-                4.0 / k
-            } else {
-                -4.0 / k
-            }
-        })
-        .sum()
+    (0..n).collect::<Vec<_>>().par_iter().map(|&i| bbp(i)).sum()
 }
 
 #[cfg(test)]
 mod tests {
     use crate::*;
-    const ITER_NUM: u32 = 1000000;
+    const ITER_NUM: u32 = 10000;
 
     #[test]
     fn test_pi() {
