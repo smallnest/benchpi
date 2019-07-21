@@ -1,0 +1,20 @@
+[package]
+name = "benchpi"
+version = "0.1.0"
+authors = ["smallnest <smallnest@gmail.com>"]
+license = "MIT/Apache-2.0"
+repository = "https://github.com/smallnest/pi.git"
+homepage = "https://github.com/smallnest/pi.git"
+documentation = "https://docs.rs/benchpi"
+description = "bench calculating PI with concurrency"
+readme = "README.md"
+keywords = ["coroutine", "multi-thread"]
+categories = ["concurrency"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+num_cpus = "1.0"
+itertools = "0.8.0"
+rayon = "1.1.0"
