@@ -2,6 +2,9 @@ use itertools::Itertools;
 use rayon::prelude::*;
 use std::thread::spawn;
 
+#[macro_use]
+extern crate may;
+
 // https://en.wikipedia.org/wiki/Bailey–Borwein–Plouffe_formula
 fn bbp(k: u32) -> f64 {
     let a1 = 4.0 / (8 * k + 1) as f64;
@@ -47,6 +50,20 @@ pub fn pi_with_rayon(n: u32) -> f64 {
     (0..n).collect::<Vec<_>>().par_iter().map(|&i| bbp(i)).sum()
 }
 
+pub fn pi_with_may(n: u32, num: usize) -> f64 {
+    let mut result: f64 = 0.0;
+
+    may::config().set_workers(num).set_io_workers(0);
+
+    let v = (0..n).map(|i| go!(move || { bbp(i) })).collect::<Vec<_>>();
+
+    for i in v {
+        result += i.join().unwrap();
+    }
+
+    result
+}
+
 #[cfg(test)]
 mod tests {
     use crate::*;
@@ -65,5 +82,10 @@ mod tests {
     #[test]
     fn test_pi_with_rayon() {
         println!("pi_with_rayon = {}", pi_with_rayon(ITER_NUM));
+    }
+
+    #[test]
+    fn test_pi_with_may() {
+        println!("pi_with_rayon = {}", pi_with_may(ITER_NUM, 4));
     }
 }

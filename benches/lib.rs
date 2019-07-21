@@ -16,11 +16,16 @@ fn bench_single_thread(bench: &mut Bencher) {
 #[bench]
 fn bench_multiple_thread(bench: &mut Bencher) {
     let num = num_cpus::get();
-
     bench.iter(|| pi_with_thread(ITER_NUM, num));
 }
 
 #[bench]
 fn bench_with_rayon(bench: &mut Bencher) {
     bench.iter(|| pi_with_rayon(ITER_NUM));
+}
+
+#[bench]
+fn bench_with_may(bench: &mut Bencher) {
+    let num = num_cpus::get();
+    bench.iter(|| pi_with_may(ITER_NUM, num));
 }
